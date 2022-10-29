@@ -69,15 +69,10 @@ app.put("/repositories/:id",findId, (request, response) => {
 });
 
 // delete the repository
-app.delete("/repositories/:id", (request, response) => {
-  const { id } = request.params;
-  repositoryIndex = repositories.findIndex(repository => repository.id === id);
-  if (repositoryIndex > 0) {
-    return response.status(404).json({ error: "Repository not found" });
-  }
-
+app.delete("/repositories/:id",findId, (request, response) => {
+  const { repository } = request.params;
+  const repositoryIndex = repositories.findIndex(e => e.id === repository.id);
   repositories.splice(repositoryIndex, 1);
-
   return response.status(204).send();
 });
 
