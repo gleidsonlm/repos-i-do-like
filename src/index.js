@@ -7,8 +7,8 @@ const app = express();
 app.use(express.json());
 
 
-const repositories = [];
-/* repositories Model
+const repositories = [
+  /* Model
   {
   id: uuid(), //primary unique uuid
   title, //string
@@ -16,12 +16,21 @@ const repositories = [];
   techs, //array
   likes: 0 //integer autoincrement !important starts with 0
   }
-*/
+  */
+  {
+    "id": "4491b5bd-7136-4330-b63f-075309fcdbfe",
+    "title": "Repos I Do Like",
+    "url": "https://github.com/gleidsonlm/repos-i-do-like",
+    "techs": "['javascript','nodejs']",
+    "likes": 0
+  }
+];
+
 
 /* Middleware will receive route params and return next if matching object */
 function findId(request,response,next) {
   const { id } = request.params;
-  const repository = repositories.find(e => e.repository.id = id)
+  const repository = repositories.find(e => e.id = id)
   if (repository) {
     request.repository = repository;
     return next();
@@ -52,20 +61,20 @@ app.post("/repositories", (request, response) => {
 
 // update repository
 app.put("/repositories/:id",findId, (request, response) => {
-  const repository = request.repository;
+  const { repository } = request;
+  const { title , url , techs} = request.body;
+  // don't update repository likes manually
 
   // todo: reassign values not ideal, refactor to map maybe?
-  if (!newRepository.title){
-    repository.title = newRepository.title;
-  } else if (!newRepository.url) {
-    repository.url = newRepository.url;
-  } else if (!newRepository.techs) {
-    repository.techs = newRepository.techs;
-  } else if (!newRepository.likes) {
-    // don't update repository likes manually
-  } else {
-    return response.status(200).json(repository);
+  // case request.body properties and update repository with its values, if they exist.
+  if (title){
+    repository.title = title;
+  } if (url) {
+    repository.url = url;
+  } if (techs) {
+    repository.techs = techs;
   }
+  return response.status(200).json(repository); 
 });
 
 // delete the repository
@@ -83,7 +92,7 @@ app.post("/repositories/:id/like",findId, (request, response) => {
   const likes = ++repositories[repositoryIndex].likes;
  */
   repository.likes = ++repository.likes;
-  return response.json('likes');
+  return response.stauts(200).json(repository.likes);
 });
 
 module.exports = app;
