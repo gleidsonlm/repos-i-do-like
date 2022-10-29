@@ -18,6 +18,18 @@ const repositories = [];
   }
 */
 
+/* Middleware will receive route params and return next if matching object */
+function findId(request,response,next) {
+  const { id } = request.params;
+  const repository = repositories.find(e => e.repository.id = id)
+  if (repository) {
+    request.repository = repository;
+    return next();
+  } else {
+    return response.status(404).json({error: "Repository Not Found with ID " + id });
+  }
+};
+
 // list the projects
 app.get("/repositories", (request, response) => {
   return response.status(200).json(repositories);
@@ -31,7 +43,7 @@ app.post("/repositories", (request, response) => {
     title,
     url,
     techs,
-    likes: 0
+    likes: 0 //!important start with 0 likes
   };
   
   repositories.push(repository);
@@ -39,33 +51,27 @@ app.post("/repositories", (request, response) => {
 });
 
 // update repository
-app.put("/repositories/:id", (request, response) => {
-  const { id } = request.params;
-  const newRepository = request.body;
-  const repositoryIndex = repositories.findIndex(e => e.id === id);
-  let repository;
-  // don't update a non existing repository
-  if (repositoryIndex === -1) {
-    return response.status(404).json({ error: "Repository not found" });
+app.put("/repositories/:id",findId, (request, response) => {
+  const repository = request.repository;
+
+  // todo: reassign values not ideal, refactor to map maybe?
+  if (!newRepository.title){
+    repository.title = newRepository.title;
+  } else if (!newRepository.url) {
+    repository.url = newRepository.url;
+  } else if (!newRepository.techs) {
+    repository.techs = newRepository.techs;
+  } else if (!newRepository.likes) {
+    // don't update repository likes manually
   } else {
-    repository = repositories[repositoryIndex];
-    if (!newRepository.title){
-      repository.title = newRepository.title;
-    } else if (!newRepository.url) {
-      repository.url = newRepository.url;
-    } else if (!newRepository.techs) {
-      repository.url = newRepository.url;
-    }
-  }
     return response.status(200).json(repository);
   }
-);
+});
 
+// delete the repository
 app.delete("/repositories/:id", (request, response) => {
   const { id } = request.params;
-
   repositoryIndex = repositories.findIndex(repository => repository.id === id);
-
   if (repositoryIndex > 0) {
     return response.status(404).json({ error: "Repository not found" });
   }
