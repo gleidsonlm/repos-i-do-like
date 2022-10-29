@@ -76,17 +76,13 @@ app.delete("/repositories/:id",findId, (request, response) => {
   return response.status(204).send();
 });
 
-app.post("/repositories/:id/like", (request, response) => {
-  const { id } = request.params;
-
-  repositoryIndex = repositories.findIndex(repository => repository.id === id);
-
-  if (repositoryIndex < 0) {
-    return response.status(404).json({ error: "Repository not found" });
-  }
-
+//give a like to the repository
+app.post("/repositories/:id/like",findId, (request, response) => {
+  const { repository } = request.params;
+  /* const repositoryIndex = repositories.findIndex(e => e.id === repository.id);
   const likes = ++repositories[repositoryIndex].likes;
-
+ */
+  repository.likes = ++repository.likes;
   return response.json('likes');
 });
 
