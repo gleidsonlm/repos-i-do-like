@@ -30,12 +30,12 @@ const repositories = [
 /* Middleware will receive route params and return next if matching object */
 function findId(request,response,next) {
   const { id } = request.params;
-  const repository = repositories.find(e => e.id = id)
-  if (repository) {
+  const repository = repositories.find(e => e.id === id)
+  if (!repository) {
+    return response.status(404).json({error: "Repository Not Found with ID " + id });
+  } else {
     request.repository = repository;
     return next();
-  } else {
-    return response.status(404).json({error: "Repository Not Found with ID " + id });
   }
 };
 
@@ -62,9 +62,8 @@ app.post("/repositories", (request, response) => {
 // update repository
 app.put("/repositories/:id",findId, (request, response) => {
   const { repository } = request;
-  const { title , url , techs} = request.body;
   // don't update repository likes manually
-
+  const { title , url , techs} = request.body;
   // todo: reassign values not ideal, refactor to map maybe?
   // case request.body properties and update repository with its values, if they exist.
   if (title){
@@ -79,7 +78,7 @@ app.put("/repositories/:id",findId, (request, response) => {
 
 // delete the repository
 app.delete("/repositories/:id",findId, (request, response) => {
-  const { repository } = request.params;
+  const { repository } = request;
   const repositoryIndex = repositories.findIndex(e => e.id === repository.id);
   repositories.splice(repositoryIndex, 1);
   return response.status(204).send();
@@ -87,12 +86,9 @@ app.delete("/repositories/:id",findId, (request, response) => {
 
 //give a like to the repository
 app.post("/repositories/:id/like",findId, (request, response) => {
-  const { repository } = request.params;
-  /* const repositoryIndex = repositories.findIndex(e => e.id === repository.id);
-  const likes = ++repositories[repositoryIndex].likes;
- */
+  const { repository } = request;
   repository.likes = ++repository.likes;
-  return response.stauts(200).json(repository.likes);
+  return response.status(200).json(repository.likes);
 });
 
 module.exports = app;
